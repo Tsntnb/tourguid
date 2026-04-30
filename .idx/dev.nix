@@ -1,53 +1,52 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://developers.google.com/idx/guides/customize-idx-env
-{ pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-24.11"; # or "unstable"
-  # Use https://search.nixos.org/packages to find packages
+{ pkgs, ... }:
+
+# Use a let block to define a variable for the Android SDK to avoid repetition.
+let
+  # The androidsdk package provides the basic SDK "bundle".
+  androidsdk = pkgs.androidsdk;
+in
+{
+  # Use the unstable channel to get newer versions of Android tools.
+  channel = "unstable";
+
+  # A list of packages to install from the specified channel.
   packages = [
-    # pkgs.go
-    # pkgs.python311
-    # pkgs.python311Packages.pip
-    # pkgs.nodejs_22
-    # pkgs.nodePackages.nodemon
+    pkgs.jdk
+    pkgs.gradle
+    # Add platform-tools and build-tools to your environment.
+    androidsdk
+    (androidsdk.override {
+      sdkPackages = [ "platform-tools" "build-tools" ];
+    })
   ];
-  # Sets environment variables in the workspace
-  env = {};
-  idx = {
-    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
-    extensions = [
-      # "vscodevim.vim"
-      "google.gemini-cli-vscode-ide-companion"
+
+  # A set of environment variables to define within the workspace.
+  env = {
+    # Set environment variables for the Android SDK.
+    ANDROID_HOME = "${androidsdk}/libexec/android-sdk";
+    # Add platform-tools and build-tools to your PATH.
+    PATH = [
+      "${androidsdk}/libexec/android-sdk/platform-tools"
+      "${androidsdk}/libexec/android-sdk/build-tools"
+      "$PATH"
     ];
-    # Enable previews
-    previews = {
-      enable = true;
-      previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
-      };
-    };
-    # Workspace lifecycle hooks
+  };
+
+  # Project IDX specific configurations.
+  idx = {
+    # A list of VS Code extensions to install from the Open VSX Registry.
+    extensions = [
+      "google.gemini-cli-vscode-ide-companion"
+      "fwcd.kotlin"
+      "redhat.java"
+    ];
+
+    # Workspace lifecycle hooks.
     workspace = {
-      # Runs when a workspace is first created
+      # Runs when a workspace is first created.
       onCreate = {
-        # Example: install JS dependencies from NPM
-        # npm-install = "npm install";
-        # Open editors for the following files by default, if they exist:
-        default.openFiles = [ ".idx/dev.nix" "README.md" ];
-      };
-      # Runs when the workspace is (re)started
-      onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
+        # Grant execute permissions to the gradlew wrapper script.
+        make-gradelw-executable = "chmod +x ./gradlew";
       };
     };
   };
