@@ -2,9 +2,9 @@
 # Gradle
 .gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
+!gradle-wrapper.jar
 
-# IDE specific
+# IDE
 .idea/
 *.iml
 *.ipr
@@ -17,27 +17,41 @@ build/
 # Environment
 .env
 .env.local
-*.env
+*.env.*
 
-# Temporary files
-*.tmp
-*.temp
-*~
+# Dependencies
+node_modules/
+vendor/
+
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+*.so
+*.dll
+*.exe
 
-# Python (if present in project)
+# Python (if applicable)
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-*.so
-.Pytest_cache/
-.mypy_cache/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
 ```
